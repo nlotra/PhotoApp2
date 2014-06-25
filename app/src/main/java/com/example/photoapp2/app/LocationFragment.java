@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Created by Guest on 2014/06/23.
+ * Created by Natasha Lotra on 2014/06/24.
  */
 public class LocationFragment extends Fragment
 {

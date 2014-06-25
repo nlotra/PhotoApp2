@@ -13,6 +13,9 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * Created by Natasha Lotra on 2014/06/24.
+ */
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener
 {
