@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -25,7 +24,7 @@ import java.net.URLConnection;
 public class RetrieveImageTaskFragment extends Fragment
 {
     private TaskCallbacks callbacks;
-
+    private String searchTerm = "";
 
     static interface TaskCallbacks
     {
@@ -33,6 +32,11 @@ public class RetrieveImageTaskFragment extends Fragment
         void onProgressUpdate(int percent);
         void onCancelled();
         void onPostExecute(Photo[] urls);
+    }
+
+    public RetrieveImageTaskFragment(String searchTerm)
+    {
+        this.searchTerm = searchTerm;
     }
 
     @Override
@@ -46,7 +50,7 @@ public class RetrieveImageTaskFragment extends Fragment
         Log.d("retaindfragment", "Retained fragment loaded");
 
         //execute background task
-        new RetrieveImagesTask().execute("cats");
+        new RetrieveImagesTask().execute(searchTerm);
     }
 
     private class RetrieveImagesTask extends AsyncTask<String, Integer, Photo[]>
@@ -158,12 +162,12 @@ public class RetrieveImageTaskFragment extends Fragment
         }
 
         @Override
-        protected void onPostExecute(Photo[] urls)
+        protected void onPostExecute(Photo[] photos)
         {
             Log.d("onpostexecute", "onPostExecute called");
             if(callbacks != null)
             {
-                callbacks.onPostExecute(urls);
+                callbacks.onPostExecute(photos);
                 Log.d("callbacks", "urls sent");
             }
         }

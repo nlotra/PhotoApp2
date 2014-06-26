@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 /**
  * Created by Natasha Lotra on 2014/06/24.
@@ -17,6 +18,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 {
     private static final String RETRIEVE_IMAGE_TASK = "retrieve_images";
     private RetrieveImageTaskFragment retrieveImageFragment;
+    private View view;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -28,7 +30,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         //inflate the layout
-        View view = inflater.inflate(R.layout.search_fragment, container, false);
+        view = inflater.inflate(R.layout.search_fragment, container, false);
 
         //set onclicklistener
         Button btnSearch = (Button) view.findViewById(R.id.btn_search);
@@ -40,6 +42,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
         });
 
         retrieveImageFragment = (RetrieveImageTaskFragment) getFragmentManager().findFragmentByTag(RETRIEVE_IMAGE_TASK);
+        // if the fragment is not null, it is being retained
         if(retrieveImageFragment != null)
         {
             retrieveImageFragment.setCallbacks(this);
@@ -60,10 +63,12 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
         FragmentManager fm = getFragmentManager();
 
-        // if the fragment is not null, it is being retained
-        if(retrieveImageFragment == null)
+        EditText etSearch = (EditText) this.view.findViewById(R.id.et_search);
+        String searchTerm = etSearch.getText().toString().trim();
+
+        if(searchTerm != "")
         {
-            retrieveImageFragment = new RetrieveImageTaskFragment();
+            retrieveImageFragment = new RetrieveImageTaskFragment(searchTerm);
             retrieveImageFragment.setCallbacks(this);
             fm.beginTransaction().add(retrieveImageFragment, RETRIEVE_IMAGE_TASK).commit();
         }

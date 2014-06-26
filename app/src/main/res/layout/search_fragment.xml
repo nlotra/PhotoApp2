@@ -4,40 +4,54 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Search For Images"
-        android:id="@+id/tvsearchtitle"
-        android:layout_gravity="center_horizontal" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:id="@+id/et_searchBar"
-            android:layout_gravity="center_horizontal" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
+        android:orientation="vertical">
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/et_searchBar"
-            android:text="Search"
-            android:id="@+id/btn_search"
+            android:text="Search For Images"
+            android:id="@+id/tvsearchtitle"
             android:layout_gravity="center_horizontal" />
-    </RelativeLayout>
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stretchColumns="*"
-        android:id="@+id/image_grid" >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </TableLayout>
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="50dp"
+                android:id="@+id/et_search"
+                android:layout_gravity="center_horizontal" />
 
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/et_search"
+                android:text="Search"
+                android:id="@+id/btn_search"
+                android:layout_gravity="center_horizontal" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                android:id="@+id/image_grid" >
+            </TableLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
