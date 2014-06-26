@@ -1,13 +1,9 @@
 package com.example.photoapp2.app;
 
-import android.app.Activity;
-import android.support.v4.app.FragmentManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 /**
  * Created by Natasha Lotra on 2014/06/24.
@@ -31,7 +28,7 @@ public class RetrieveImageTaskFragment extends Fragment
         void onPreExecute();
         void onProgressUpdate(int percent);
         void onCancelled();
-        void onPostExecute(Photo[] urls);
+        void onPostExecute(ArrayList <Photo> photos);
     }
 
     public RetrieveImageTaskFragment(String searchTerm)
@@ -53,15 +50,15 @@ public class RetrieveImageTaskFragment extends Fragment
         new RetrieveImagesTask().execute(searchTerm);
     }
 
-    private class RetrieveImagesTask extends AsyncTask<String, Integer, Photo[]>
+    private class RetrieveImagesTask extends AsyncTask<String, Integer, ArrayList <Photo>>
     {
         private static final String API_KEY = "0b50fdd9304a54276d22994eb20f27a8";
-        private Photo[] photoUrl;
+        private ArrayList <Photo> photoArrList = new ArrayList <Photo>();
 
         @Override
-        protected Photo[] doInBackground(String... searchString) {
+        protected ArrayList doInBackground(String... searchString) {
             // construct the api url
-            String stringUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&text=" + searchString[0] + "&api_key=" + API_KEY + "&per_page=9&format=json";
+            String stringUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&text=" + searchString[0] + "&api_key=" + API_KEY + "&per_page=50&format=json";
 
             Log.d("constrcturl", "url: " + stringUrl);
 
@@ -80,10 +77,10 @@ public class RetrieveImageTaskFragment extends Fragment
                     builder.append(line);
                 }
 
-                //response returns invalid json
+                // response returns invalid json
                 Log.d("response", builder.toString());
 
-                //trim the junk
+                // trim the junk
                 int start = builder.toString().indexOf("(") + 1;
                 int end = builder.toString().length() - 1;
                 String response = builder.toString().substring(start,end);
@@ -93,14 +90,17 @@ public class RetrieveImageTaskFragment extends Fragment
                 JSONArray photoArr = jsonObjInner.getJSONArray("photo"); //get the array of photos
                 JSONObject photo;
 
-                photoUrl = new Photo[photoArr.length()];
-
-                // get the photo urls for each result returned from the api
+                // get the photo info for each result returned by the api
                 for(int i = 0; i < photoArr.length(); i++)
                 {
                     photo = photoArr.getJSONObject(i);
-                    photoUrl[i] = new Photo(constructImageUrl(photo));
-                    Log.d("photourl", photoUrl[i].getUrl());
+                    photoArrList.add(new Photo(constructImageUrl(photo)));
+                    photoArrList.get(i).setId(photo.getString("id"));
+                    photoArrList.get(i).setOwner(photo.getString("owner"));
+                    photoArrList.get(i).setSecret(photo.getString("secret"));
+                    photoArrList.get(i).setServer(photo.getString("server"));
+                    photoArrList.get(i).setFarm(photo.getString("farm"));
+                    photoArrList.get(i).setTitle(photo.getString("title"));
                 }
 
             } catch (java.io.IOException e) {
@@ -109,7 +109,7 @@ public class RetrieveImageTaskFragment extends Fragment
                 e.printStackTrace();
             }
 
-            return photoUrl;
+            return photoArrList;
         }
 
         // construct the url for each image
@@ -129,7 +129,6 @@ public class RetrieveImageTaskFragment extends Fragment
             imgurl.append(id);
             imgurl.append("_");
             imgurl.append(secret);
-            imgurl.append(".jpg");
 
             return imgurl.toString();
         }
@@ -162,7 +161,7 @@ public class RetrieveImageTaskFragment extends Fragment
         }
 
         @Override
-        protected void onPostExecute(Photo[] photos)
+        protected void onPostExecute(ArrayList <Photo> photos)
         {
             Log.d("onpostexecute", "onPostExecute called");
             if(callbacks != null)

@@ -12,13 +12,20 @@ import java.io.InputStream;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     ImageView bmImage;
+    char size;
 
-    public DownloadImageTask(ImageView bmImage) {
+    public DownloadImageTask(ImageView bmImage, char size) {
         this.bmImage = bmImage;
+        this.size = size;
     }
 
     protected Bitmap doInBackground(String... urls) {
-        String urldisplay = urls[0];
+        String urldisplay = urls[0] + ".jpg";
+        if(size != '-')
+        {
+            urldisplay = urls[0] + "_" + size + ".jpg";
+        }
+
         Bitmap mIcon11 = null;
         try {
             InputStream in = new java.net.URL(urldisplay).openStream();

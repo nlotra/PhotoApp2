@@ -23,7 +23,8 @@
                 android:layout_width="300dp"
                 android:layout_height="50dp"
                 android:id="@+id/et_search"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:text="cats" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"

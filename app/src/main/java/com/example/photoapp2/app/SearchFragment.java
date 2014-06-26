@@ -1,5 +1,6 @@
 package com.example.photoapp2.app;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+
+import java.util.ArrayList;
 
 /**
  * Created by Natasha Lotra on 2014/06/24.
@@ -19,6 +25,8 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     private static final String RETRIEVE_IMAGE_TASK = "retrieve_images";
     private RetrieveImageTaskFragment retrieveImageFragment;
     private View view;
+    private TableLayout tblLayout;
+    ArrayList <Photo> photoInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -40,6 +48,9 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
                 onSearch(v);
             }
         });
+
+        //get the table layout
+        tblLayout = (TableLayout) view.findViewById(R.id.image_grid);
 
         retrieveImageFragment = (RetrieveImageTaskFragment) getFragmentManager().findFragmentByTag(RETRIEVE_IMAGE_TASK);
         // if the fragment is not null, it is being retained
@@ -68,59 +79,11 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
         if(searchTerm != "")
         {
+            tblLayout.removeAllViews();
             retrieveImageFragment = new RetrieveImageTaskFragment(searchTerm);
             retrieveImageFragment.setCallbacks(this);
             fm.beginTransaction().add(retrieveImageFragment, RETRIEVE_IMAGE_TASK).commit();
         }
-
-//        TableRow[] tblRows = new TableRow[9];
-//
-//
-//
-//        // Create the layout
-//        TableLayout tblLayout = (TableLayout) getActivity().findViewById(R.id.imageGrid);
-//
-//        // load the images into a table
-//        for(int x = 0; x < 3; x++)
-//        {
-//            tblRows[x] = new TableRow(getActivity().getBaseContext());
-//
-//            for(int y = 0; y < 3; y++)
-//            {
-//
-////                if(random.nextInt(3) == 0 && numGiven > 0)
-////                {
-////                    TextView curr = new TextView(this);
-////                    curr.setWidth(50);
-////                    curr.setHeight(50);
-////                    curr.setBackgroundResource(R.drawable.border);
-////                    curr.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-////                    curr.setGravity(Gravity.CENTER);
-////                    curr.setTextColor(Color.GRAY);
-////                    curr.setText("" + numbers[x][y]);
-////                    numViews[x][y] = curr;
-////                    given[x][y] = true;
-////                    numGiven--;
-////                }
-////                else
-////                {
-////                    EditText curr = new EditText(this);
-////                    curr.setWidth(50);
-////                    curr.setHeight(50);
-////                    curr.setBackgroundResource(R.drawable.border);
-////                    curr.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-////                    curr.setGravity(Gravity.CENTER);
-////                    curr.setFilters(filter);
-////                    curr.setKeyListener(digitlistener);
-////                    given[x][y] = false;
-////                    numViews[x][y] = curr;
-////                }
-////                //add the views to the row
-////                tblRows[x].addView(numViews[x][y]);
-//            }
-//            //add the rows to the table
-//            tblLayout.addView(tblRows[x]);
-//        }
     }
 
     @Override
@@ -139,10 +102,75 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     }
 
     @Override
-    public void onPostExecute(Photo[] photos){
-        for(int i = 0; i < photos.length; i++)
+    public void onPostExecute(ArrayList <Photo> photos){
+        for(int i = 0; i < photos.size(); i++)
         {
-            Log.d("callbackurl", photos[i].getUrl());
+            Log.d("photourl", photos.get(i).getUrl());
+            if(photos.get(i).getTitle() != null)
+            {
+                Log.d("phototitle", photos.get(i).getTitle());
+            }
         }
+
+        // Create the layout
+        ArrayList <TableRow> tblRows = new ArrayList<TableRow>();
+
+        int count = 0;
+        int rowCount = 0;
+        int size = 154;
+
+        // load the images into a table
+        while(count < photos.size())
+        {
+            tblRows.add(new TableRow(getActivity().getBaseContext()));
+
+            for(int y = 0; y < 3; y++)
+            {
+                if(count < photos.size() && photos.get(count) != null)
+                {
+                    ImageView image = new ImageView(getActivity().getBaseContext());
+
+                    // download the image
+                    new DownloadImageTask(image, 'q').execute(photos.get(count).getUrl());
+                    image.setPadding(2, 2, 2, 2);
+                    image.setMaxHeight(size);
+                    image.setMaxWidth(size);
+                    image.setMinimumHeight(size);
+                    image.setMinimumWidth(size);
+                    image.setId(count);
+
+                    //add the views to the row
+                    tblRows.get(rowCount).addView(image);
+                    image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onImageClick(v);
+                        }
+                    });
+
+                    count++;
+                }
+            }
+            //add the rows to the table
+            tblLayout.addView(tblRows.get(rowCount));
+            rowCount++;
+        }
+
+        photoInfo = photos;
+    }
+
+    public void onImageClick(View view)
+    {
+        Log.d("Image Click", "Image clicked: " + view.getId());
+
+        Intent i = new Intent(getActivity().getBaseContext(), ShowImageActivity.class);
+        i.putExtra("id", photoInfo.get(view.getId()).getId());
+        i.putExtra("owner", photoInfo.get(view.getId()).getOwner());
+        i.putExtra("secret", photoInfo.get(view.getId()).getSecret());
+        i.putExtra("server", photoInfo.get(view.getId()).getServer());
+        i.putExtra("farm", photoInfo.get(view.getId()).getFarm());
+        i.putExtra("title", photoInfo.get(view.getId()).getTitle());
+        i.putExtra("url", photoInfo.get(view.getId()).getUrl());
+        startActivity(i);
     }
 }
