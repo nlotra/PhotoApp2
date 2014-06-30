@@ -22,11 +22,11 @@ import java.util.ArrayList;
  */
 public class SearchFragment extends Fragment implements RetrieveImageTaskFragment.TaskCallbacks
 {
-    private static final String RETRIEVE_IMAGE_TASK = "retrieve_images";
+    private static final String RETRIEVE_IMAGE_TASK = "retrieve_search_images";
     private RetrieveImageTaskFragment retrieveImageFragment;
     private View view;
     private TableLayout tblLayout;
-    ArrayList <Photo> photoInfo;
+    private ArrayList <Photo> photoInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
