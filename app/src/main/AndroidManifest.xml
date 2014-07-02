@@ -2,10 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.photoapp2.app" >
 
-    <uses-sdk android:minSdkVersion="11" android:maxSdkVersion="19" />
+    <uses-sdk android:minSdkVersion="12" android:maxSdkVersion="19" />
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -24,10 +32,22 @@
         <activity android:name=".ShowImageActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="com.example.Smile904fmAndroid.ShowImageActivity"/>
+                <action android:name="com.example.photoapp2.app.ShowImageActivity"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ShowMapActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="com.example.photoapp2.app.ShowMapActivity"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyApYS9itCkY3E7HWRrH1U4EXYF-v2i83FM" />
     </application>
 
 </manifest>

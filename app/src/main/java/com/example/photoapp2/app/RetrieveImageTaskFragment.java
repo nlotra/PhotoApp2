@@ -38,6 +38,11 @@ public class RetrieveImageTaskFragment extends Fragment
         this.searchTerm = searchTerm;
     }
 
+    public RetrieveImageTaskFragment()
+    {
+
+    }
+
     public RetrieveImageTaskFragment(String lat, String lon)
     {
         this.latitude = lat;
@@ -111,21 +116,22 @@ public class RetrieveImageTaskFragment extends Fragment
                 String response = builder.toString().substring(start,end);
 
                 JSONObject jsonObj = new JSONObject(response); //parse the string to a json object
-                JSONObject jsonObjInner = jsonObj.getJSONObject("photos"); //get the inner object
-                JSONArray photoArr = jsonObjInner.getJSONArray("photo"); //get the array of photos
-                JSONObject photo;
+                if(jsonObj.getString("stat").equals("ok")) {
+                    JSONObject jsonObjInner = jsonObj.getJSONObject("photos"); //get the inner object
+                    JSONArray photoArr = jsonObjInner.getJSONArray("photo"); //get the array of photos
+                    JSONObject photo;
 
-                // get the photo info for each result returned by the api
-                for(int i = 0; i < photoArr.length(); i++)
-                {
-                    photo = photoArr.getJSONObject(i);
-                    photoArrList.add(new Photo(constructImageUrl(photo)));
-                    photoArrList.get(i).setId(photo.getString("id"));
-                    photoArrList.get(i).setOwner(photo.getString("owner"));
-                    photoArrList.get(i).setSecret(photo.getString("secret"));
-                    photoArrList.get(i).setServer(photo.getString("server"));
-                    photoArrList.get(i).setFarm(photo.getString("farm"));
-                    photoArrList.get(i).setTitle(photo.getString("title"));
+                    // get the photo info for each result returned by the api
+                    for (int i = 0; i < photoArr.length(); i++) {
+                        photo = photoArr.getJSONObject(i);
+                        photoArrList.add(new Photo(constructImageUrl(photo)));
+                        photoArrList.get(i).setId(photo.getString("id"));
+                        photoArrList.get(i).setOwner(photo.getString("owner"));
+                        photoArrList.get(i).setSecret(photo.getString("secret"));
+                        photoArrList.get(i).setServer(photo.getString("server"));
+                        photoArrList.get(i).setFarm(photo.getString("farm"));
+                        photoArrList.get(i).setTitle(photo.getString("title"));
+                    }
                 }
 
             } catch (java.io.IOException e) {
@@ -195,7 +201,6 @@ public class RetrieveImageTaskFragment extends Fragment
                 Log.d("callbacks", "urls sent");
             }
         }
-
     }
 
     public void setCallbacks(TaskCallbacks tc)

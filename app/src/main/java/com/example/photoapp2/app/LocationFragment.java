@@ -2,6 +2,7 @@ package com.example.photoapp2.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Created by Natasha Lotra on 2014/06/24.
  */
-public class LocationFragment extends Fragment implements LocationListener, RetrieveImageTaskFragment.TaskCallbacks
+public class LocationFragment extends Fragment implements LocationListener, RetrieveImageTaskFragment.TaskCallbacks, DownloadImageTask.ImageCallback
 {
     private LocationManager locationManager;
     private String provider;
@@ -35,6 +36,8 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     private RetrieveImageTaskFragment retrieveImageFragment;
     private TableLayout tblLayout;
     private ArrayList<Photo> photoInfo;
+    private ArrayList <ImageView> imageView = new ArrayList<ImageView>();
+    private int loadcount = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -186,20 +189,20 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
             {
                 if(count < photos.size() && photos.get(count) != null)
                 {
-                    ImageView image = new ImageView(getActivity().getBaseContext());
+                    this.imageView.add(new ImageView(getActivity().getBaseContext()));
 
                     // download the image
-                    new DownloadImageTask(image, 'q').execute(photos.get(count).getUrl());
-                    image.setPadding(2, 2, 2, 2);
-                    image.setMaxHeight(size);
-                    image.setMaxWidth(size);
-                    image.setMinimumHeight(size);
-                    image.setMinimumWidth(size);
-                    image.setId(count);
+                    new DownloadImageTask(this, 'q').execute(photos.get(count).getUrl());
+                    imageView.get(count).setPadding(2, 2, 2, 2);
+                    imageView.get(count).setMaxHeight(size);
+                    imageView.get(count).setMaxWidth(size);
+                    imageView.get(count).setMinimumHeight(size);
+                    imageView.get(count).setMinimumWidth(size);
+                    imageView.get(count).setId(count);
 
                     //add the views to the row
-                    tblRows.get(rowCount).addView(image);
-                    image.setOnClickListener(new View.OnClickListener() {
+                    tblRows.get(rowCount).addView(imageView.get(count));
+                    imageView.get(count).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             onImageClick(v);
@@ -230,5 +233,11 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
         i.putExtra("title", photoInfo.get(view.getId()).getTitle());
         i.putExtra("url", photoInfo.get(view.getId()).getUrl());
         startActivity(i);
+    }
+
+    @Override
+    public void onImageResult(Bitmap image) {
+        imageView.get(loadcount).setImageBitmap(image);
+        loadcount++;
     }
 }
