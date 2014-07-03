@@ -76,8 +76,7 @@ public class ShowMapActivity extends Activity implements DownloadImageTask.Image
     @Override
     protected void onResume(){
         super.onResume();
-        DownloadImageTask dlImage = new DownloadImageTask(this, 's');
-        dlImage.execute(url);
+        new DownloadImageTask(this, 's').execute(url);
         initialiseMap();
     }
 

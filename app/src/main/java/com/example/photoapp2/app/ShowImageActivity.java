@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -25,14 +26,18 @@ import java.net.URLConnection;
 public class ShowImageActivity extends Activity implements DownloadImageTask.ImageCallback
 {
     private ImageView iv;
-    private String url, title = "Untitled", id, locality = "", country = "";
+    private String url, title = "", id, locality = "", country = "";
     private double lat, lon;
     private Button btnShowMap;
+
+    private RelativeLayout imgInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_image);
+
+        imgInfo = (RelativeLayout) findViewById(R.id.image_info);
 
         //get the info required
         Intent i = getIntent();
@@ -135,10 +140,9 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
         protected void onPostExecute(Boolean hasGeo)
         {
             //hide map button if no location info exists
-            if(!hasGeo) {
-                btnShowMap.setVisibility(View.GONE);
-            }
-            else {
+            if(hasGeo) {
+                //show map button
+                btnShowMap.setVisibility(View.VISIBLE);
                 //set onclick listener
                 btnShowMap.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -157,6 +161,14 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
             }
             else {
                 tvLocation.setText(country);
+            }
+
+            Log.d("photoInfo", "Title: " + title + "HasGeo: " + hasGeo);
+
+            //if no image information exists, hide the info fragment
+            if(title.isEmpty() && !hasGeo) {
+                imgInfo.setVisibility(View.GONE);
+                Log.d("hideInfo", "No image info available");
             }
         }
     }

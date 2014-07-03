@@ -8,6 +8,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -31,6 +33,7 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     private String provider;
     private Location location;
     private View view;
+    private Criteria criteria;
 
     private static final String RETRIEVE_IMAGE_TASK = "retrieve_location_images";
     private RetrieveImageTaskFragment retrieveImageFragment;
@@ -48,12 +51,12 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         // get the best provider (use default criteria)
-        Criteria criteria = new Criteria();
+        criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, true);
+
         location = locationManager.getLastKnownLocation(provider);
 
-        if(location != null)
-        {
+        if (location != null) {
             onLocationChanged(location);
         }
     }
@@ -103,9 +106,17 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
             retrieveImageFragment.setCallbacks(this);
             fm.beginTransaction().add(retrieveImageFragment, RETRIEVE_IMAGE_TASK).commit();
         }
+        else if(provider != LocationManager.NETWORK_PROVIDER)
+        {
+            provider = LocationManager.NETWORK_PROVIDER;
+            onLocationChanged(location);
+            onSearch(view);
+        }
         else
         {
             Log.d("location", "no location detected");
+            DialogFragment dialog = new LocationDialogFragment();
+            dialog.show(getActivity().getSupportFragmentManager(), "locationdialog");
         }
     }
 
@@ -140,11 +151,14 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     @Override
     public void onProviderEnabled(String s) {
         Toast.makeText(getActivity().getBaseContext(), "Provider " + provider + " enabled", Toast.LENGTH_SHORT);
+        provider = locationManager.getBestProvider(criteria, true);
+
     }
 
     @Override
     public void onProviderDisabled(String s) {
         Toast.makeText(getActivity().getBaseContext(), "Provider " + provider + " disabled", Toast.LENGTH_SHORT);
+        provider = locationManager.getBestProvider(criteria, true);
     }
 
     @Override
@@ -175,6 +189,7 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
 
         // Create the layout
         ArrayList <TableRow> tblRows = new ArrayList<TableRow>();
+        imageView = new ArrayList<ImageView>();
 
         int count = 0;
         int rowCount = 0;
