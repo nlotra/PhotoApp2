@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -29,6 +30,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     private ArrayList <Photo> photoInfo;
     private ArrayList <ImageView> imageView;
     private int loadcount = 0;
+    private ProgressBar progSpin;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -53,6 +55,8 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
         //get the table layout
         tblLayout = (TableLayout) view.findViewById(R.id.image_grid);
+        //get the progress spinner
+        progSpin = (ProgressBar) view.findViewById(R.id.progSpinner);
 
         retrieveImageFragment = (RetrieveImageTaskFragment) getFragmentManager().findFragmentByTag(RETRIEVE_IMAGE_TASK);
         // if the fragment is not null, it is being retained
@@ -90,7 +94,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
     @Override
     public void onPreExecute() {
-
+        progSpin.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -100,7 +104,9 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
     @Override
     public void onCancelled() {
-
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -158,6 +164,10 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
             //add the rows to the table
             tblLayout.addView(tblRows.get(rowCount));
             rowCount++;
+        }
+
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
         }
 
         photoInfo = photos;

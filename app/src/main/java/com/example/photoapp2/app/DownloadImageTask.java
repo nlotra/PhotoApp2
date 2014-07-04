@@ -4,9 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.InputStream;
+
+/**
+ * Created by Natasha Lotra on 2014/06/24.
+ */
 
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     char size;

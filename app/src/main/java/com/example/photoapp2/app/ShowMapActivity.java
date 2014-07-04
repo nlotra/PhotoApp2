@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
- * Created by Guest on 2014/07/01.
+ * Created by Natasha Lotra on 2014/07/01.
  */
 public class ShowMapActivity extends Activity implements DownloadImageTask.ImageCallback {
 

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     private ArrayList<Photo> photoInfo;
     private ArrayList <ImageView> imageView = new ArrayList<ImageView>();
     private int loadcount = 0;
+    private ProgressBar progSpin;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -69,6 +71,8 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
 
         //get the table layout
         tblLayout = (TableLayout) view.findViewById(R.id.image_grid);
+        //get the progress spinner
+        progSpin = (ProgressBar) view.findViewById(R.id.progSpinner);
 
         //set onclicklistener
         Button btnSearch = (Button) view.findViewById(R.id.btn_search);
@@ -109,11 +113,11 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
         else if(provider != LocationManager.NETWORK_PROVIDER)
         {
             provider = LocationManager.NETWORK_PROVIDER;
-            onLocationChanged(location);
             onSearch(view);
         }
         else
         {
+            provider = locationManager.getBestProvider(criteria, true);
             Log.d("location", "no location detected");
             DialogFragment dialog = new LocationDialogFragment();
             dialog.show(getActivity().getSupportFragmentManager(), "locationdialog");
@@ -151,19 +155,20 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     @Override
     public void onProviderEnabled(String s) {
         Toast.makeText(getActivity().getBaseContext(), "Provider " + provider + " enabled", Toast.LENGTH_SHORT);
-        provider = locationManager.getBestProvider(criteria, true);
-
+        locationManager.removeUpdates(this);
+        locationManager.requestLocationUpdates(provider, 400, 1, this);
     }
 
     @Override
     public void onProviderDisabled(String s) {
         Toast.makeText(getActivity().getBaseContext(), "Provider " + provider + " disabled", Toast.LENGTH_SHORT);
-        provider = locationManager.getBestProvider(criteria, true);
+        locationManager.removeUpdates(this);
+        locationManager.requestLocationUpdates(provider, 400, 1, this);
     }
 
     @Override
     public void onPreExecute() {
-
+        progSpin.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -173,7 +178,9 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
 
     @Override
     public void onCancelled() {
-
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -230,6 +237,10 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
             //add the rows to the table
             tblLayout.addView(tblRows.get(rowCount));
             rowCount++;
+        }
+
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
         }
 
         photoInfo = photos;
