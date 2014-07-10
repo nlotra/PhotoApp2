@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
     private String url, title = "", id, locality = "", country = "";
     private double lat, lon;
     private Button btnShowMap;
-
+    private ProgressBar progSpin;
     private RelativeLayout imgInfo;
 
     @Override
@@ -37,7 +38,10 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_image);
 
+        //get the image info container
         imgInfo = (RelativeLayout) findViewById(R.id.image_info);
+        //get the progress spinner
+        progSpin = (ProgressBar) findViewById(R.id.progSpinner);
 
         //get the info required
         Intent i = getIntent();
@@ -45,6 +49,9 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
         this.title = i.getStringExtra("title");
         this.id = i.getStringExtra("id");
         Log.d("id", this.id);
+
+        //show the progress spinner
+        progSpin.setVisibility(View.VISIBLE);
 
         //download the image to the image view
         iv = (ImageView) findViewById(R.id.image_view);
@@ -60,7 +67,26 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
 
     @Override
     public void onImageResult(Bitmap image) {
+        //load the imageview
         iv.setImageBitmap(image);
+
+        //stop the progress spinner
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
+        }
+
+        //when the image is clicked, show or hide the image info
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(imgInfo.getVisibility() == View.VISIBLE) {
+                    imgInfo.setVisibility(View.GONE);
+                }
+                else if(!title.isEmpty()){
+                    imgInfo.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void onShowMap(View view)
