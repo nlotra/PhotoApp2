@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -37,6 +39,9 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_image);
+
+        //show back button on actionbar
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         //get the image info container
         imgInfo = (RelativeLayout) findViewById(R.id.image_info);
@@ -87,6 +92,19 @@ public class ShowImageActivity extends Activity implements DownloadImageTask.Ima
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            //respond to actionbar's up/home button
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void onShowMap(View view)

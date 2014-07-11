@@ -89,7 +89,10 @@ public class LocationFragment extends Fragment implements LocationListener, Retr
     @Override
     public void onDestroy()
     {
-        retrieveImageFragment.setCallbacks(null);
+        if(retrieveImageFragment != null) {
+            retrieveImageFragment.setCallbacks(null);
+        }
+        super.onDestroy();
     }
 
     public void onSearch(View view)

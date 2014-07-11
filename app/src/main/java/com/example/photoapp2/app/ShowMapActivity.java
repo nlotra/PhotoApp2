@@ -9,7 +9,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,6 +36,10 @@ public class ShowMapActivity extends Activity implements DownloadImageTask.Image
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_fragment);
 
+        //show back button on action bar
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //get intents
         Intent i = getIntent();
         this.url = i.getStringExtra("url");
         this.title = i.getStringExtra("title");
@@ -90,5 +96,18 @@ public class ShowMapActivity extends Activity implements DownloadImageTask.Image
 
         //add the marker
         googlemap.addMarker(marker);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            //respond to actionbar's up/home button
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

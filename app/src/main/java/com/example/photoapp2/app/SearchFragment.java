@@ -71,7 +71,10 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     @Override
     public void onDestroy()
     {
-        retrieveImageFragment.setCallbacks(null);
+        if(retrieveImageFragment != null) {
+            retrieveImageFragment.setCallbacks(null);
+        }
+        super.onDestroy();
     }
 
     public void onSearch(View view)
