@@ -1,10 +1,10 @@
 package com.example.photoapp2.app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -20,13 +21,16 @@ import java.util.ArrayList;
 /**
  * Created by Natasha Lotra on 2014/06/24.
  */
-public class SearchFragment extends Fragment implements RetrieveImageTaskFragment.TaskCallbacks
+public class SearchFragment extends Fragment implements RetrieveImageTaskFragment.TaskCallbacks, DownloadImageTask.ImageCallback
 {
-    private static final String RETRIEVE_IMAGE_TASK = "retrieve_images";
+    private static final String RETRIEVE_IMAGE_TASK = "retrieve_search_images";
     private RetrieveImageTaskFragment retrieveImageFragment;
     private View view;
     private TableLayout tblLayout;
-    ArrayList <Photo> photoInfo;
+    private ArrayList <Photo> photoInfo;
+    private ArrayList <ImageView> imageView;
+    private int loadcount = 0;
+    private ProgressBar progSpin;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -51,6 +55,8 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
         //get the table layout
         tblLayout = (TableLayout) view.findViewById(R.id.image_grid);
+        //get the progress spinner
+        progSpin = (ProgressBar) view.findViewById(R.id.progSpinner);
 
         retrieveImageFragment = (RetrieveImageTaskFragment) getFragmentManager().findFragmentByTag(RETRIEVE_IMAGE_TASK);
         // if the fragment is not null, it is being retained
@@ -65,7 +71,10 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
     @Override
     public void onDestroy()
     {
-        retrieveImageFragment.setCallbacks(null);
+        if(retrieveImageFragment != null) {
+            retrieveImageFragment.setCallbacks(null);
+        }
+        super.onDestroy();
     }
 
     public void onSearch(View view)
@@ -88,7 +97,7 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
     @Override
     public void onPreExecute() {
-
+        progSpin.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -98,7 +107,9 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
     @Override
     public void onCancelled() {
-
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -114,10 +125,12 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
 
         // Create the layout
         ArrayList <TableRow> tblRows = new ArrayList<TableRow>();
+        imageView = new ArrayList<ImageView>();
 
         int count = 0;
         int rowCount = 0;
         int size = 154;
+        loadcount = 0;
 
         // load the images into a table
         while(count < photos.size())
@@ -128,20 +141,20 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
             {
                 if(count < photos.size() && photos.get(count) != null)
                 {
-                    ImageView image = new ImageView(getActivity().getBaseContext());
+                    this.imageView.add(new ImageView(getActivity().getBaseContext()));
 
                     // download the image
-                    new DownloadImageTask(image, 'q').execute(photos.get(count).getUrl());
-                    image.setPadding(2, 2, 2, 2);
-                    image.setMaxHeight(size);
-                    image.setMaxWidth(size);
-                    image.setMinimumHeight(size);
-                    image.setMinimumWidth(size);
-                    image.setId(count);
+                    new DownloadImageTask(this, 'q').execute(photos.get(count).getUrl());
+                    imageView.get(count).setPadding(2, 2, 2, 2);
+                    imageView.get(count).setMaxHeight(size);
+                    imageView.get(count).setMaxWidth(size);
+                    imageView.get(count).setMinimumHeight(size);
+                    imageView.get(count).setMinimumWidth(size);
+                    imageView.get(count).setId(count);
 
                     //add the views to the row
-                    tblRows.get(rowCount).addView(image);
-                    image.setOnClickListener(new View.OnClickListener() {
+                    tblRows.get(rowCount).addView(imageView.get(count));
+                    imageView.get(count).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             onImageClick(v);
@@ -154,6 +167,10 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
             //add the rows to the table
             tblLayout.addView(tblRows.get(rowCount));
             rowCount++;
+        }
+
+        if(progSpin.getVisibility() == View.VISIBLE) {
+            progSpin.setVisibility(View.GONE);
         }
 
         photoInfo = photos;
@@ -172,5 +189,11 @@ public class SearchFragment extends Fragment implements RetrieveImageTaskFragmen
         i.putExtra("title", photoInfo.get(view.getId()).getTitle());
         i.putExtra("url", photoInfo.get(view.getId()).getUrl());
         startActivity(i);
+    }
+
+    @Override
+    public void onImageResult(Bitmap image) {
+        imageView.get(loadcount).setImageBitmap(image);
+        loadcount++;
     }
 }

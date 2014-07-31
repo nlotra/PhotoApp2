@@ -22,6 +22,8 @@ public class RetrieveImageTaskFragment extends Fragment
 {
     private TaskCallbacks callbacks;
     private String searchTerm = "";
+    private String latitude = "0";
+    private String longitude = "0";
 
     static interface TaskCallbacks
     {
@@ -36,6 +38,17 @@ public class RetrieveImageTaskFragment extends Fragment
         this.searchTerm = searchTerm;
     }
 
+    public RetrieveImageTaskFragment()
+    {
+
+    }
+
+    public RetrieveImageTaskFragment(String lat, String lon)
+    {
+        this.latitude = lat;
+        this.longitude = lon;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -46,26 +59,43 @@ public class RetrieveImageTaskFragment extends Fragment
 
         Log.d("retaindfragment", "Retained fragment loaded");
 
-        //execute background task
-        new RetrieveImagesTask().execute(searchTerm);
+        //if searchterm is null, send co-ordinates to asynctask
+        if(searchTerm != "")
+        {
+            //execute background task
+            new RetrieveImagesTask().execute(searchTerm);
+        }
+        else
+        {
+            new RetrieveImagesTask().execute(latitude, longitude);
+        }
     }
 
     private class RetrieveImagesTask extends AsyncTask<String, Integer, ArrayList <Photo>>
     {
         private static final String API_KEY = "0b50fdd9304a54276d22994eb20f27a8";
         private ArrayList <Photo> photoArrList = new ArrayList <Photo>();
+        private String searchUrl;
 
         @Override
-        protected ArrayList doInBackground(String... searchString) {
-            // construct the api url
-            String stringUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&text=" + searchString[0] + "&api_key=" + API_KEY + "&per_page=50&format=json";
+        protected ArrayList doInBackground(String... params) {
+            if(params.length == 1)
+            {
+                // construct the api url for search terms
+                searchUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&text=" + params[0] + "&api_key=" + API_KEY + "&per_page=50&format=json";
+            }
+            else
+            {
+                // construct the api url for location
+                searchUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&lat=" + params[0] + "&lon=" + params[1] + "&api_key=" + API_KEY + "&per_page=50&format=json";
+            }
 
-            Log.d("constrcturl", "url: " + stringUrl);
+            Log.d("searchurl", "url: " + searchUrl);
 
             // attempt to retrieve a json result
             try
             {
-                URL url = new URL(stringUrl);
+                URL url = new URL(searchUrl);
                 URLConnection conn = url.openConnection();
                 String line;
                 StringBuilder builder = new StringBuilder();
@@ -86,21 +116,22 @@ public class RetrieveImageTaskFragment extends Fragment
                 String response = builder.toString().substring(start,end);
 
                 JSONObject jsonObj = new JSONObject(response); //parse the string to a json object
-                JSONObject jsonObjInner = jsonObj.getJSONObject("photos"); //get the inner object
-                JSONArray photoArr = jsonObjInner.getJSONArray("photo"); //get the array of photos
-                JSONObject photo;
+                if(jsonObj.getString("stat").equals("ok")) {
+                    JSONObject jsonObjInner = jsonObj.getJSONObject("photos"); //get the inner object
+                    JSONArray photoArr = jsonObjInner.getJSONArray("photo"); //get the array of photos
+                    JSONObject photo;
 
-                // get the photo info for each result returned by the api
-                for(int i = 0; i < photoArr.length(); i++)
-                {
-                    photo = photoArr.getJSONObject(i);
-                    photoArrList.add(new Photo(constructImageUrl(photo)));
-                    photoArrList.get(i).setId(photo.getString("id"));
-                    photoArrList.get(i).setOwner(photo.getString("owner"));
-                    photoArrList.get(i).setSecret(photo.getString("secret"));
-                    photoArrList.get(i).setServer(photo.getString("server"));
-                    photoArrList.get(i).setFarm(photo.getString("farm"));
-                    photoArrList.get(i).setTitle(photo.getString("title"));
+                    // get the photo info for each result returned by the api
+                    for (int i = 0; i < photoArr.length(); i++) {
+                        photo = photoArr.getJSONObject(i);
+                        photoArrList.add(new Photo(constructImageUrl(photo)));
+                        photoArrList.get(i).setId(photo.getString("id"));
+                        photoArrList.get(i).setOwner(photo.getString("owner"));
+                        photoArrList.get(i).setSecret(photo.getString("secret"));
+                        photoArrList.get(i).setServer(photo.getString("server"));
+                        photoArrList.get(i).setFarm(photo.getString("farm"));
+                        photoArrList.get(i).setTitle(photo.getString("title"));
+                    }
                 }
 
             } catch (java.io.IOException e) {
@@ -170,7 +201,6 @@ public class RetrieveImageTaskFragment extends Fragment
                 Log.d("callbacks", "urls sent");
             }
         }
-
     }
 
     public void setCallbacks(TaskCallbacks tc)
